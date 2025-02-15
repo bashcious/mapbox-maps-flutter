@@ -6,6 +6,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        
     }
 
     dependencies {
@@ -15,14 +16,29 @@ buildscript {
 }
 
 rootProject.allprojects {
+    def token = System.getenv("MAPBOX_DOWNLOADS_TOKEN") ?: project.findProperty('MAPBOX_DOWNLOADS_TOKEN') ?: System.getenv("MAPBOX_DOWNLOADS_TOKEN") ?: project.findProperty('MAPBOX_DOWNLOADS_TOKEN')
     repositories {
         google()
         mavenCentral()
         maven {
             url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = "mapbox"
+                password = token
+            }
         }
         maven {
             url 'https://api.mapbox.com/downloads/v2/snapshots/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = "mapbox"
+                password = token
+            }
         }
     }
 }
