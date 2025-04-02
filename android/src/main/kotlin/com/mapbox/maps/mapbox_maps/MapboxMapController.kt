@@ -15,6 +15,7 @@ import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.mapbox_maps.annotation.AnnotationController
+import com.mapbox.maps.mapbox_maps.http.CustomHttpServiceInterceptor
 import com.mapbox.maps.mapbox_maps.pigeons.AttributionSettingsInterface
 import com.mapbox.maps.mapbox_maps.pigeons.CompassSettingsInterface
 import com.mapbox.maps.mapbox_maps.pigeons.GesturesSettingsInterface
@@ -26,6 +27,7 @@ import com.mapbox.maps.mapbox_maps.pigeons._AnimationManager
 import com.mapbox.maps.mapbox_maps.pigeons._CameraManager
 import com.mapbox.maps.mapbox_maps.pigeons._LocationComponentSettingsInterface
 import com.mapbox.maps.mapbox_maps.pigeons._MapInterface
+import com.mapbox.maps.mapbox_maps.pigeons._PerformanceStatisticsApi
 import com.mapbox.maps.mapbox_maps.pigeons._ViewportMessenger
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.viewport.viewport
@@ -69,6 +71,7 @@ class MapboxMapController(
   private val scaleBarController: ScaleBarController
   private val compassController: CompassController
   private val viewportController: ViewportController
+  private val performanceStatisticsController: PerformanceStatisticsController
 
   private val eventHandler: MapboxEventHandler
 
@@ -152,7 +155,7 @@ class MapboxMapController(
     scaleBarController = ScaleBarController(mapView)
     compassController = CompassController(mapView)
     viewportController = ViewportController(mapView.viewport, mapView.camera, context, mapboxMap)
-
+    performanceStatisticsController = PerformanceStatisticsController(mapboxMap, this.messenger, this.channelSuffix)
     changeUserAgent(pluginVersion)
 
     StyleManager.setUp(messenger, styleController, this.channelSuffix)
@@ -168,6 +171,7 @@ class MapboxMapController(
     ScaleBarSettingsInterface.setUp(messenger, scaleBarController, this.channelSuffix)
     CompassSettingsInterface.setUp(messenger, compassController, this.channelSuffix)
     _ViewportMessenger.setUp(messenger, viewportController, this.channelSuffix)
+    _PerformanceStatisticsApi.setUp(messenger, performanceStatisticsController, this.channelSuffix)
 
     methodChannel = MethodChannel(messenger, "plugins.flutter.io.$channelSuffix")
     methodChannel.setMethodCallHandler(this)
@@ -193,7 +197,7 @@ class MapboxMapController(
     super.onFlutterViewDetached()
     lifecycleHelper?.dispose()
     lifecycleHelper = null
-    mapView!!.setViewTreeLifecycleOwner(null)
+    mapView?.setViewTreeLifecycleOwner(null)
   }
 
   override fun dispose() {
@@ -202,6 +206,7 @@ class MapboxMapController(
     }
     lifecycleHelper?.dispose()
     lifecycleHelper = null
+    mapView?.setViewTreeLifecycleOwner(null)
     mapView = null
     mapboxMap = null
     methodChannel.setMethodCallHandler(null)
@@ -219,6 +224,7 @@ class MapboxMapController(
     ScaleBarSettingsInterface.setUp(messenger, null, channelSuffix)
     AttributionSettingsInterface.setUp(messenger, null, channelSuffix)
     _ViewportMessenger.setUp(messenger, null, channelSuffix)
+    _PerformanceStatisticsApi.setUp(messenger, null, channelSuffix)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -266,6 +272,19 @@ class MapboxMapController(
       }
       "mapView#submitViewSizeHint" -> {
         result.success(null) // no-op on this platform
+      }
+      "map#setCustomHeaders" -> {
+        try {
+          val headers = call.argument<Map<String, String>>("headers")
+          headers?.let {
+            CustomHttpServiceInterceptor.getInstance().setCustomHeaders(headers)
+            result.success(null)
+          } ?: run {
+            result.error("INVALID_ARGUMENTS", "Headers cannot be null", null)
+          }
+        } catch (e: Exception) {
+          result.error("HEADER_ERROR", e.message, null)
+        }
       }
       else -> {
         result.notImplemented()

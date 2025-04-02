@@ -1,7 +1,19 @@
-### main 
+### main
 
+* Introduce experimental `MapboxMap.startPerformanceStatisticsCollection` / `MapboxMap.stopPerformanceStatisticsCollection` APIs allowing to start / stop collecting map rendering performance statistics.
+
+### 2.7.0
+
+* Update Maps SDK to 11.11.0
+* Introduce a `setCustomHttpHeader` method to allow the plugin to modify HTTP headers dynamically.
 * Experimental `StandardBuildingState` has been removed. Use `StandardBuildingsState` instead.
+* `top-image`, `bearing-image`, and `shadow-image` properties on `LocationIndicatorLayer` are now paint properties instead of layout properties.
 * Introduce `onZoomListener` to `MapWidget` to allowing listening to zoom events resulting from user gestures: pinching, double-tapping, or quick zooming. The event returns `MapContentGestureContext`, which includes `touchPosition` (the location of the gesture on the screen), `point` (the geographical coordinates of the gesture), and `gestureState` (the state of the gesture). See `gestures_example.dart` for implementation guidance.
+* Expose `SymbolLayer.iconSizeScaleRange`, `SymbolLayer.iconSizeScaleRangeExpression`, `SymbolLayer.textSizeScaleRange`, `SymbolLayer.textSizeScaleRangeExpression`, `LineLayer.lineCrossSlope`, `LineLayer.lineElevationReference`, `LineLayer.lineWidthUnit`, `FillLayer.fillElevationReference`.
+* Expose `PointAnnotationManager.setIconSizeScaleRange()`, `PointAnnotationManager.getIconSizeScaleRange()`, `PointAnnotationManager.setTextSizeScaleRange()`, `PointAnnotationManager.getTextSizeScaleRange()` , `PolygonAnnotationManager.setFillElevationReference()`, `PolygonAnnotationManager.getFillElevationReference()`, `PolylineAnnotationManager.setLineCrossSlope()`, `PolylineAnnotationManager.getLineCrossSlope()`, `PolylineAnnotationManager.setLineElevationReference()`, `PolylineAnnotationManager.getLineElevationReference()`, `PolylineAnnotationManager.setLineWidthUnit()`, `PolylineAnnotationManager.getLineWidthUnit()` as experimental.
+* Mark `ClipLayer.clipLayerScope` and `ClipLayer.clipLayerTypes` as stable
+* Mark `BackgroundLayer.backgroundPitchAlignment` as experimental 
+* [Android] Fix rare NPE upon native view disposal.
 
 ### 2.6.0
 

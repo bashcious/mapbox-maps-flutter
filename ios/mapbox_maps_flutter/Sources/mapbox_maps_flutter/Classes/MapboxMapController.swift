@@ -92,6 +92,16 @@ final class MapboxMapController: NSObject, FlutterPlatformView {
         )
         _ViewportMessengerSetup.setUp(binaryMessenger: binaryMessenger.messenger, api: viewportController, messageChannelSuffix: binaryMessenger.suffix)
 
+        let performanceStatisticsController = PerformanceStatisticsController(
+            mapboxMap: mapView.mapboxMap,
+            messenger: binaryMessenger
+        )
+        _PerformanceStatisticsApiSetup.setUp(
+            binaryMessenger: binaryMessenger.messenger,
+            api: performanceStatisticsController,
+            messageChannelSuffix: binaryMessenger.suffix
+        )
+
         super.init()
 
         channel.setMethodCallHandler { [weak self] in self?.onMethodCall(methodCall: $0, result: $1) }
@@ -136,6 +146,22 @@ final class MapboxMapController: NSObject, FlutterPlatformView {
                 mapView.superview?.frame = CGRect(origin: .zero, size: size)
             }
             result(nil)
+        case "map#setCustomHeaders":
+            guard let arguments = methodCall.arguments as? [String: Any],
+              let headers = arguments["headers"] as? [String: String]
+        else {
+            result(FlutterError(
+                code: "setCustomHeaders",
+                message: "could not decode arguments",
+                details: nil
+            ))
+            return
+        }
+        let customInterceptor = CustomHttpServiceInterceptor()
+        HttpServiceFactory.setHttpServiceInterceptorForInterceptor(customInterceptor)
+            customInterceptor.customHeaders = headers
+        result(nil)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -157,5 +183,6 @@ final class MapboxMapController: NSObject, FlutterPlatformView {
         ScaleBarSettingsInterfaceSetup.setUp(binaryMessenger: binaryMessenger.messenger, api: nil, messageChannelSuffix: binaryMessenger.suffix)
         annotationController?.tearDown(messenger: binaryMessenger)
         _ViewportMessengerSetup.setUp(binaryMessenger: binaryMessenger.messenger, api: nil, messageChannelSuffix: binaryMessenger.suffix)
+        _PerformanceStatisticsApiSetup.setUp(binaryMessenger: binaryMessenger.messenger, api: nil, messageChannelSuffix: binaryMessenger.suffix)
     }
 }
