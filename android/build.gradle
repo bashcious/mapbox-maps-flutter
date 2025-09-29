@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath 'com.android.tools.build:gradle:8.13.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -47,7 +47,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdk 33
+    compileSdk 36
 
     namespace 'com.mapbox.maps.mapbox_maps'
     sourceSets {
@@ -58,12 +58,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = JavaVersion.VERSION_17
     }
 }
 
@@ -77,6 +77,6 @@ if (file("$rootDir/gradle/ktlint.gradle").exists() && file("$rootDir/gradle/lint
 dependencies {
     implementation "com.mapbox.maps:android-ndk27:11.16.0-beta.1"
 
-    implementation "androidx.annotation:annotation:1.5.0"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.2"
+    implementation "androidx.annotation:annotation:1.11.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.9.4"
 }
