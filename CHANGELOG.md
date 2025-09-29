@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-### main
-=======
 ### 2.12.0-beta.1
->>>>>>> 9dca0f0d86afb36472e45225da006dc5a7f9f14a
 
 * Use Maps SDK Android dependency with NDK 27 support and [support for 16 KB page sizes](https://developer.android.com/guide/practices/page-sizes).
 * Expose `LineLayer.lineCutoutOpacity`, `LineLayer.lineCutoutWidth` and `LineLayer.lineCutoutFadeWidth` to make route lines visible through obstructing 3D buildings and other aboveground features.
@@ -88,10 +84,7 @@
 * Update geometry conversions on Android to use Longitude, Latitude instead of Latitude, Longitude order. This follows the order used by the GeoJSON Specification and the Turf library.
 * [Android] Fix color alpha value conversion.
 * Introduce experimental `MapboxMap.startPerformanceStatisticsCollection` / `MapboxMap.stopPerformanceStatisticsCollection` APIs allowing to start / stop collecting map rendering performance statistics.
-<<<<<<< HEAD
-=======
 * Update Maps SDK to 11.12.0
->>>>>>> 9dca0f0d86afb36472e45225da006dc5a7f9f14a
 
 ### 2.7.0
 

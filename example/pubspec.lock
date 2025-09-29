@@ -269,11 +269,7 @@ packages:
       path: ".."
       relative: true
     source: path
-<<<<<<< HEAD
-    version: "2.7.0"
-=======
     version: "2.12.0-beta.1"
->>>>>>> 9dca0f0d86afb36472e45225da006dc5a7f9f14a
   matcher:
     dependency: transitive
     description:
