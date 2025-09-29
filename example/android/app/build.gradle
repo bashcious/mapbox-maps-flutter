@@ -24,19 +24,19 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.mapbox.maps.mapbox_maps_example"
-    compileSdk 36
-    ndkVersion = "27.0.12077973"
+    compileSdkVersion 36
+    ndkVersion "29.0.13113456 rc1"
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     defaultConfig {
