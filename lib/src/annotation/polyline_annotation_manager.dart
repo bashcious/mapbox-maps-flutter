@@ -16,10 +16,77 @@ class PolylineAnnotationManager extends BaseAnnotationManager {
   final String _channelSuffix;
 
   /// Add a listener to receive the callback when an annotation is clicked.
+  @Deprecated('Use [tapEvents] instead.')
   void addOnPolylineAnnotationClickListener(
       OnPolylineAnnotationClickListener listener) {
-    OnPolylineAnnotationClickListener.setUp(listener,
-        binaryMessenger: _messenger, messageChannelSuffix: _channelSuffix);
+    OnPolylineAnnotationClickListener._withCancelable(
+        tapEvents(onTap: listener.onPolylineAnnotationClick), _channelSuffix);
+  }
+
+  /// Registers tap event callbacks for the annotations managed by this manager.
+  ///
+  /// Note: Tap events will now not propagate to annotations below the topmost one. If you tap on overlapping annotations, only the top annotation's tap event will be triggered.
+  Cancelable tapEvents({required Function(PolylineAnnotation) onTap}) {
+    return _annotationInteractionEvents(instanceName: "$_channelSuffix/$id/tap")
+        .cast<PolylineAnnotationInteractionContext>()
+        .listen((data) => onTap(data.annotation))
+        .asCancelable();
+  }
+
+  /// Registers long press event callbacks for the annotations managed by this manager.
+  ///
+  /// Note: This event will be triggered simultaneously with the [dragEvents] `onBegin` if the annotation is draggable.
+  Cancelable longPressEvents(
+      {required Function(PolylineAnnotation) onLongPress}) {
+    return _annotationInteractionEvents(
+            instanceName: "$_channelSuffix/$id/long_press")
+        .cast<PolylineAnnotationInteractionContext>()
+        .listen((data) => onLongPress(data.annotation))
+        .asCancelable();
+  }
+
+  /// Registers drag event callbacks for the annotations managed by this manager.
+  ///
+  /// - [onBegin]: Triggered when a drag gesture begins on an annotation.
+  /// - [onChanged]: Triggered continuously as the annotation is being dragged.
+  /// - [onEnd]: Triggered when the drag gesture ends.
+  ///
+  /// This method returns a [Cancelable] object that can be used to cancel
+  /// the drag event listener when it's no longer needed.
+  /// Example usage:
+  /// ```dart
+  /// manager.dragEvents(
+  ///   onBegin: (annotation) {
+  ///     print("Drag started for: ${annotation.id}");
+  ///   },
+  ///   onChanged: (annotation) {
+  ///     print("Dragging at: ${annotation.geometry}");
+  ///   },
+  ///   onEnd: (annotation) {
+  ///     print("Drag ended at: ${annotation.geometry}");
+  ///   },
+  /// );
+  /// ```
+  Cancelable dragEvents({
+    Function(PolylineAnnotation)? onBegin,
+    Function(PolylineAnnotation)? onChanged,
+    Function(PolylineAnnotation)? onEnd,
+  }) {
+    return _annotationInteractionEvents(
+            instanceName: "$_channelSuffix/$id/drag")
+        .cast<PolylineAnnotationInteractionContext>()
+        .listen((data) {
+      switch (data.gestureState) {
+        case GestureState.started when onBegin != null:
+          onBegin(data.annotation);
+        case GestureState.changed when onChanged != null:
+          onChanged(data.annotation);
+        case GestureState.ended when onEnd != null:
+          onEnd(data.annotation);
+        default:
+          break;
+      }
+    }).asCancelable();
   }
 
   /// Create a new annotation with the option.
@@ -58,6 +125,36 @@ class PolylineAnnotationManager extends BaseAnnotationManager {
   @experimental
   Future<double?> getLineCrossSlope() =>
       _annotationMessenger.getLineCrossSlope(id);
+
+  /// The width of the cutout fade effect Default value: 0.4. Value range: [0, 1]
+  @experimental
+  Future<void> setLineCutoutFadeWidth(double lineCutoutFadeWidth) =>
+      _annotationMessenger.setLineCutoutFadeWidth(id, lineCutoutFadeWidth);
+
+  /// The width of the cutout fade effect Default value: 0.4. Value range: [0, 1]
+  @experimental
+  Future<double?> getLineCutoutFadeWidth() =>
+      _annotationMessenger.getLineCutoutFadeWidth(id);
+
+  /// The opacity of the aboveground objects affected by the line cutout. Cutout for tunnels isn't affected by this property, If set to 0, the cutout is fully transparent. Cutout opacity should have the same value for all layers that specify it. If all layers don't have the same value, it is not specified which value is used. Default value: 0.3. Value range: [0, 1]
+  @experimental
+  Future<void> setLineCutoutOpacity(double lineCutoutOpacity) =>
+      _annotationMessenger.setLineCutoutOpacity(id, lineCutoutOpacity);
+
+  /// The opacity of the aboveground objects affected by the line cutout. Cutout for tunnels isn't affected by this property, If set to 0, the cutout is fully transparent. Cutout opacity should have the same value for all layers that specify it. If all layers don't have the same value, it is not specified which value is used. Default value: 0.3. Value range: [0, 1]
+  @experimental
+  Future<double?> getLineCutoutOpacity() =>
+      _annotationMessenger.getLineCutoutOpacity(id);
+
+  /// The width of the line cutout in meters. If set to 0, the cutout is disabled. The cutout does not apply to location-indicator type layers. Default value: 0. Value range: [0, 50]
+  @experimental
+  Future<void> setLineCutoutWidth(double lineCutoutWidth) =>
+      _annotationMessenger.setLineCutoutWidth(id, lineCutoutWidth);
+
+  /// The width of the line cutout in meters. If set to 0, the cutout is disabled. The cutout does not apply to location-indicator type layers. Default value: 0. Value range: [0, 50]
+  @experimental
+  Future<double?> getLineCutoutWidth() =>
+      _annotationMessenger.getLineCutoutWidth(id);
 
   /// Selects the base of line-elevation. Some modes might require precomputed elevation data in the tileset. Default value: "none".
   @experimental
