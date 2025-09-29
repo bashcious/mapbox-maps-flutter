@@ -47,7 +47,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdk 36
+    compileSdkVersion 36
 
     namespace 'com.mapbox.maps.mapbox_maps'
     sourceSets {
